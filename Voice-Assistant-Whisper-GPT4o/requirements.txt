@@ -1,5 +1,5 @@
 streamlit
-AzureOpenAI
+openai==0.25.0
 pybase64
 torch
 torchaudio

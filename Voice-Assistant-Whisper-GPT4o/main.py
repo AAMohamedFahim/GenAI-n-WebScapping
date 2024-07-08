@@ -10,7 +10,7 @@ import base64
 # load_dotenv()
 
 whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-token = "Bearer " + st.secrets['HuggingFaceToken']
+token = "Bearer " + st.secrets['HF_TOKEN']
 headers = {
     "Authorization": token,
     'Content-Type': 'audio/wav'

@@ -1,4 +1,5 @@
 import os
+import streamlit as st
 import requests
 import soundfile as sf
 import speech_recognition as sr
@@ -19,58 +20,43 @@ def capture_audio_from_microphone():
     return audio_data
 
 def STT_AudioData(audio_data, model, headers):
-    try:
-        response = requests.post(model, headers=headers, data=audio_data)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error in STT API request: {e}")
-        return None
+    response = requests.post(model, headers=headers, data=audio_data)
+    return response.json()
 
 def STT_rec_voice(headers, model):
     audio_data = capture_audio_from_microphone()
     vad_audio_data = silero_vad_main(audio_data)
-    if vad_audio_data is None:
-        return None
     response = STT_AudioData(vad_audio_data, model, headers)
     return response
 
-def STT_audio_file(file_name, model, headers):
-    try:
-        with open(file_name, "rb") as f:
-            audio_data = f.read()
-        vad_audio_data = silero_vad_main(audio_data)
-        if vad_audio_data is None:
-            return None
-        response = STT_AudioData(vad_audio_data, model, headers)
-        return response
-    except IOError as e:
-        print(f"Error reading audio file: {e}")
-        return None
-
 def main():
+    # MMS = "https://api-inference.huggingface.co/models/facebook/mms-1b-all"
     whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-    token = "Bearer " + os.environ['HF_TOKEN']
+    token = "Bearer " + st.secrets['HF_TOKEN']
     headers = {"Authorization": token}
     
+    # model_selection = int(input("Select Your Model:\n1---Whisper\n2---MMS\n"))
+    # if model_selection == 1:
     model = whisper
-    
+    # model = MMS
+    # elif model_selection == 2:
+    # else:
+    #     print("Select correct option")
+    #     return
+        
     input_option = int(input("Enter Your Input Option:\n1---Audio File\n2---From Microphone\n"))
     
     if input_option == 1:
-        file_name = input("Enter the path to your audio file: ")
-        response = STT_audio_file(file_name, model, headers)
-        if response:
-            print("TEXT:", response)
-        else:
-            print("Failed to process audio file.")
+        file_name = "tam-voice.ogg"
+        with open(file_name, "rb") as f:
+            audio_data = f.read()
+        vad_audio_data = silero_vad_main(audio_data)
+        response = STT_AudioData(vad_audio_data, model, headers)
+        print("TEXT:", response)
         
     elif input_option == 2:
         response = STT_rec_voice(headers, model)
-        if response:
-            print("TEXT:", response)
-        else:
-            print("Failed to process microphone input.")
+        print("TEXT:", response)
     else:
         print("Select correct option")
 

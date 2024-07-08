@@ -3,7 +3,7 @@ from GPT40_llm import LLM_response
 from STT_main import STT_AudioData, silero_vad_main
 from TTS_main import text_to_speech
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import base64
 
 # load_dotenv()

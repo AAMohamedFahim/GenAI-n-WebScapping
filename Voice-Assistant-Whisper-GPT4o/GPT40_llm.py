@@ -1,4 +1,4 @@
-from openai import AzureOpenAI
+import AzureOpenAI
 import os
 import dotenv
 

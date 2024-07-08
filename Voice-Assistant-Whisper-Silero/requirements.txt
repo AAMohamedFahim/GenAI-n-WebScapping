@@ -6,3 +6,4 @@ Python-IO
 SpeechRecognition
 soundfile
 gTTS
+pygame

@@ -3,31 +3,10 @@ from GPT40_llm import LLM_response
 from STT_main import STT_AudioData, silero_vad_main
 from TTS_main import text_to_speech
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
 import base64
 
-# load_dotenv()
-
-whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-token = "Bearer " + st.secrets['HuggingFaceToken']
-headers = {
-    "Authorization": token,
-    'Content-Type': 'audio/wav'
-}
-
-def process_audio(audio_file):
-    try:
-        audio_data = audio_file.read()
-        st.write(f"Original audio size: {len(audio_data)} bytes")
-        vad_audio_data = silero_vad_main(audio_data)
-        st.write(f"VAD processed audio size: {len(vad_audio_data)} bytes")
-        response = STT_AudioData(vad_audio_data, whisper, headers)
-        prompt = response['text']
-        reply = LLM_response(prompt)
-        return prompt, reply
-    except Exception as e:
-        st.error(f"Error in process_audio: {str(e)}")
-        return "Error processing audio", "An error occurred while processing the audio."
+# ... (keep the rest of the imports and initial setup)
 
 def main():
     st.title("Voice Assistant")
@@ -54,14 +33,24 @@ def main():
                 st.subheader("Assistant's Reply:")
                 st.write(reply)
 
-                # Generate and play the voice reply
-                audio_reply = text_to_speech(reply)
-                st.audio(audio_reply, format='audio/wav')
+                try:
+                    # Generate the voice reply
+                    audio_reply = text_to_speech(reply)
+                    st.write(f"Type of audio_reply: {type(audio_reply)}")
+                    st.write(f"Length of audio_reply: {len(audio_reply) if audio_reply else 'None'}")
 
-                # Provide a download link for the audio reply
-                b64_audio = base64.b64encode(audio_reply).decode()
-                href = f'<a href="data:audio/wav;base64,{b64_audio}" download="assistant_reply.wav">Download Assistant\'s Voice Reply</a>'
-                st.markdown(href, unsafe_allow_html=True)
+                    if audio_reply:
+                        # Play the voice reply
+                        st.audio(audio_reply, format='audio/wav')
+
+                        # Provide a download link for the audio reply
+                        b64_audio = base64.b64encode(audio_reply).decode()
+                        href = f'<a href="data:audio/wav;base64,{b64_audio}" download="assistant_reply.wav">Download Assistant\'s Voice Reply</a>'
+                        st.markdown(href, unsafe_allow_html=True)
+                    else:
+                        st.error("Failed to generate audio reply.")
+                except Exception as e:
+                    st.error(f"Error in audio processing: {str(e)}")
 
 if __name__ == "__main__":
     main()

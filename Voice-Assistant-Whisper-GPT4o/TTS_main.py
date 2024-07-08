@@ -1,6 +1,6 @@
 from gtts import gTTS
 import pygame
-
+import streamlit as st
 def text_to_speech(text, lang='en', output_file='output.mp3'):
     try:
         tts = gTTS(text=text, lang=lang, slow=False)

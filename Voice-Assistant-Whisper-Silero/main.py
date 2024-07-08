@@ -16,12 +16,18 @@ headers = {
 }
 
 def process_audio(audio_file):
-    audio_data = audio_file.read()
-    vad_audio_data = silero_vad_main(audio_data)
-    response = STT_AudioData(vad_audio_data, whisper, headers)
-    prompt = response['text']
-    reply = LLM_response(prompt)
-    return prompt, reply
+    try:
+        audio_data = audio_file.read()
+        st.write(f"Original audio size: {len(audio_data)} bytes")
+        vad_audio_data = silero_vad_main(audio_data)
+        st.write(f"VAD processed audio size: {len(vad_audio_data)} bytes")
+        response = STT_AudioData(vad_audio_data, whisper, headers)
+        prompt = response['text']
+        reply = LLM_response(prompt)
+        return prompt, reply
+    except Exception as e:
+        st.error(f"Error in process_audio: {str(e)}")
+        return "Error processing audio", "An error occurred while processing the audio."
 
 def main():
     st.title("Voice Assistant")
@@ -30,25 +36,32 @@ def main():
 
     if uploaded_file is not None:
         st.audio(uploaded_file, format='audio/wav')
+        file_size = uploaded_file.size
+        st.write(f"Uploaded file size: {file_size} bytes")
 
-        if st.button("Process Audio"):
-            with st.spinner("Processing audio..."):
-                prompt, reply = process_audio(uploaded_file)
+        if file_size == 0:
+            st.error("The uploaded file is empty. Please upload a valid audio file.")
+        elif file_size > 5 * 1024 * 1024:  # 5 MB limit
+            st.error("The uploaded file is too large. Please upload a file smaller than 5 MB.")
+        else:
+            if st.button("Process Audio"):
+                with st.spinner("Processing audio..."):
+                    prompt, reply = process_audio(uploaded_file)
 
-            st.subheader("Transcription:")
-            st.write(prompt)
+                st.subheader("Transcription:")
+                st.write(prompt)
 
-            st.subheader("Assistant's Reply:")
-            st.write(reply)
+                st.subheader("Assistant's Reply:")
+                st.write(reply)
 
-            # Generate and play the voice reply
-            audio_reply = text_to_speech(reply)
-            st.audio(audio_reply, format='audio/wav')
+                # Generate and play the voice reply
+                audio_reply = text_to_speech(reply)
+                st.audio(audio_reply, format='audio/wav')
 
-            # Provide a download link for the audio reply
-            b64_audio = base64.b64encode(audio_reply).decode()
-            href = f'<a href="data:audio/wav;base64,{b64_audio}" download="assistant_reply.wav">Download Assistant\'s Voice Reply</a>'
-            st.markdown(href, unsafe_allow_html=True)
+                # Provide a download link for the audio reply
+                b64_audio = base64.b64encode(audio_reply).decode()
+                href = f'<a href="data:audio/wav;base64,{b64_audio}" download="assistant_reply.wav">Download Assistant\'s Voice Reply</a>'
+                st.markdown(href, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()

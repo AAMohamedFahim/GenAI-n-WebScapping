@@ -1,0 +1,10 @@
+openai
+pybase64
+torch
+torchaudio
+Python-IO
+requests
+soundfile
+speech_recognition
+gTTS
+pygame

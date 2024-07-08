@@ -3,10 +3,10 @@ import requests
 import soundfile as sf
 import speech_recognition as sr
 from io import BytesIO
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from Silero_VAD import silero_vad_main
 
-load_dotenv()
+# load_dotenv()
 
 def capture_audio_from_microphone():
     recognizer = sr.Recognizer()
@@ -50,7 +50,7 @@ def STT_audio_file(file_name, model, headers):
 
 def main():
     whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-    token = "Bearer " + os.environ['HuggingFaceToken']
+    token = "Bearer " + os.environ['HF_TOKEN']
     headers = {"Authorization": token}
     
     model = whisper

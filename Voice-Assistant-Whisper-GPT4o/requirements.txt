@@ -1,4 +1,4 @@
-openai
+AzureOpenAI
 pybase64
 torch
 torchaudio

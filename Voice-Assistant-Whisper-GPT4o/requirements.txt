@@ -6,6 +6,6 @@ torchaudio
 Python-IO
 requests
 soundfile
-speech_recognition
+SpeechRecognition
 gTTS
 pygame

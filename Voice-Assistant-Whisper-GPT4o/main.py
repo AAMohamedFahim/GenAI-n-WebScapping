@@ -1,48 +1,16 @@
-# import streamlit as st
-# from GPT40_llm import LLM_response
-# from STT_main import STT_AudioData , silero_vad_main
-# from TTS_main import text_to_speech
-# import os
-# from dotenv import load_dotenv
-# import base64
-
-
-# load_dotenv()
-
-# whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-# token = "Bearer " + os.environ['HuggingFaceToken']
-# headers = {"Authorization": token,
-#            'Content-Type': 'audio/wav'}
-
-
-
-# def main():
-#     file_name = "voice_assistant_main_cloud/hi.flac"
-#     with open(file_name, "rb") as f:
-#             audio_data = f.read()
-#     vad_audio_data = silero_vad_main(audio_data)
-#     response = STT_AudioData(vad_audio_data, whisper, headers)
-#     prompt = response['text']
-#     reply = LLM_response(prompt)
-#     print(reply)
-#     text_to_speech(reply)
-# if __name__ == "__main__":
-#     main()
-
-
 
 import streamlit as st
 from GPT40_llm import LLM_response
 from STT_main import STT_AudioData, silero_vad_main
 from TTS_main import text_to_speech
 import os
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 import base64
 
-load_dotenv()
+# load_dotenv()
 
 whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
-token = "Bearer " + os.environ['HuggingFaceToken']
+token = "Bearer " + st.secrets['HuggingFaceToken']
 headers = {
     "Authorization": token,
     'Content-Type': 'audio/wav'

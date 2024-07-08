@@ -1,27 +1,12 @@
 import torch
 import torchaudio
-import soundfile as sf
 from io import BytesIO
 
 model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', force_reload=True)
 (get_speech_timestamps, save_audio, read_audio, VADIterator, collect_chunks) = utils
 
 def silero_vad_main(audio_data):
-    try:
-        # Try loading with torchaudio first
-        wav, sr = torchaudio.load(BytesIO(audio_data))
-    except Exception as e:
-        print(f"torchaudio.load failed: {e}")
-        try:
-            # If torchaudio fails, try using soundfile
-            with BytesIO(audio_data) as audio_file:
-                wav, sr = sf.read(audio_file)
-                wav = torch.from_numpy(wav.T).float()
-        except Exception as e:
-            print(f"soundfile.read failed: {e}")
-            print("Unable to load audio file. Please check the file format and integrity.")
-            return None
-
+    wav, sr = torchaudio.load(BytesIO(audio_data))
     if sr != 16000:
         resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
         wav = resampler(wav)

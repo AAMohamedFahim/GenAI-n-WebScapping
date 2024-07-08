@@ -1,5 +1,5 @@
 streamlit
-openai==0.25.0
+openai==1.6.1
 pybase64
 torch
 torchaudio

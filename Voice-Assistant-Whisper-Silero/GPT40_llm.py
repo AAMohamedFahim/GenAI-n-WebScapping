@@ -1,7 +1,7 @@
 from openai import AzureOpenAI
 # import os
 import streamlit as st
-import dotenv
+# import dotenv
 
 def LLM_response(prompt):
     # dotenv.load_dotenv()

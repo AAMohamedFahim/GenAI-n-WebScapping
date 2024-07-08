@@ -5,11 +5,11 @@ import os
 def LLM_response(prompt):
     # dotenv.load_dotenv()
     client = AzureOpenAI(
-      azure_endpoint = st.secrets["Azure_Endpoints"], 
-      api_key=st.secrets['Azure_Openai_Api'],  
+      azure_endpoint = st.secrets["AZURE_ENDPOINT"], 
+      api_key=st.secrets['AZURE_API'],  
       api_version = "2024-02-01"
       )
-    deployment=st.secrets['Azure_Deployements']
+    deployment=st.secrets['AZURE_DEP']
 
     # prompt = input("user : ")
     messages = [{"role": "user", "content": "you are the helpfull assistance to assist user, dont use punctuation in output"},

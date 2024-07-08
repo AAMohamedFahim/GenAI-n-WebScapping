@@ -1,54 +1,78 @@
-import torch
-import torchaudio
+import os
+import requests
 import soundfile as sf
+import speech_recognition as sr
 from io import BytesIO
+from dotenv import load_dotenv
+from Silero_VAD import silero_vad_main
 
-model, utils = torch.hub.load(repo_or_dir='snakers4/silero-vad', model='silero_vad', force_reload=True)
-(get_speech_timestamps, save_audio, read_audio, VADIterator, collect_chunks) = utils
+load_dotenv()
 
-def silero_vad_main(audio_data):
+def capture_audio_from_microphone():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Listening...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+        print("Audio captured successfully.")
+    audio_data = audio.get_wav_data()
+    return audio_data
+
+def STT_AudioData(audio_data, model, headers):
     try:
-        # Try loading with torchaudio first
-        wav, sr = torchaudio.load(BytesIO(audio_data))
-    except Exception as e:
-        print(f"torchaudio.load failed: {e}")
-        try:
-            # If torchaudio fails, try using soundfile
-            with BytesIO(audio_data) as audio_file:
-                wav, sr = sf.read(audio_file)
-                wav = torch.from_numpy(wav.T).float()
-        except Exception as e:
-            print(f"soundfile.read failed: {e}")
-            print("Unable to load audio file. Please check the file format and integrity.")
-            return None
+        response = requests.post(model, headers=headers, data=audio_data)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error in STT API request: {e}")
+        return None
 
-    if sr != 16000:
-        resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
-        wav = resampler(wav)
+def STT_rec_voice(headers, model):
+    audio_data = capture_audio_from_microphone()
+    vad_audio_data = silero_vad_main(audio_data)
+    if vad_audio_data is None:
+        return None
+    response = STT_AudioData(vad_audio_data, model, headers)
+    return response
+
+def STT_audio_file(file_name, model, headers):
+    try:
+        with open(file_name, "rb") as f:
+            audio_data = f.read()
+        vad_audio_data = silero_vad_main(audio_data)
+        if vad_audio_data is None:
+            return None
+        response = STT_AudioData(vad_audio_data, model, headers)
+        return response
+    except IOError as e:
+        print(f"Error reading audio file: {e}")
+        return None
+
+def main():
+    whisper = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
+    token = "Bearer " + os.environ['HuggingFaceToken']
+    headers = {"Authorization": token}
     
-    wav = wav.flatten()
+    model = whisper
     
-    threshold = 0.2
-    min_speech_duration_ms = 100
-    min_silence_duration_ms = 50
+    input_option = int(input("Enter Your Input Option:\n1---Audio File\n2---From Microphone\n"))
     
-    speech_timestamps = get_speech_timestamps(
-        wav,
-        model,
-        threshold=threshold,
-        sampling_rate=16000,
-        min_speech_duration_ms=min_speech_duration_ms,
-        min_silence_duration_ms=min_silence_duration_ms
-    )
-    
-    if len(speech_timestamps) > 0:
-        voice_only = collect_chunks(speech_timestamps, wav)
-        buffer = BytesIO()
-        torchaudio.save(buffer, voice_only.unsqueeze(0), 16000, format='wav')
-        buffer.seek(0)
-        vad_audio_data = buffer.read()
-        print("Voice-only audio extracted.")
-        return vad_audio_data
+    if input_option == 1:
+        file_name = input("Enter the path to your audio file: ")
+        response = STT_audio_file(file_name, model, headers)
+        if response:
+            print("TEXT:", response)
+        else:
+            print("Failed to process audio file.")
+        
+    elif input_option == 2:
+        response = STT_rec_voice(headers, model)
+        if response:
+            print("TEXT:", response)
+        else:
+            print("Failed to process microphone input.")
     else:
-        print("No speech detected in the audio. Try speaking louder or adjusting the microphone.")
-        return audio_data
+        print("Select correct option")
+
+if __name__ == "__main__":
+    main()

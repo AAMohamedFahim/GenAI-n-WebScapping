@@ -8,6 +8,9 @@ This Python script scrapes content from a specific webpage about Artificial Inte
 3. Extract relevant information from the main content div
 4. Generate a PDF file named 'text_content11.pdf' with the extracted content
 
+## Output PDF file
+![Scraped Pdf](ecompedia_sample.png)
+
 ## Features
 
 - Web scraping using `requests` and `selectolax`

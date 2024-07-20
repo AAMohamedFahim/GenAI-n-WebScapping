@@ -9,6 +9,7 @@ This Python script scrapes content from a specific webpage about Artificial Inte
 4. Generate a PDF file named 'text_content11.pdf' with the extracted content
 
 ## Output PDF file
+# You can directly download from Ecom-pedia-guide.pdf in this repo
 ![Scraped Pdf](ecompedia_sample.png)
 
 ## Features

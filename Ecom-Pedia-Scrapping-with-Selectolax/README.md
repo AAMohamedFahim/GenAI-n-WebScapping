@@ -10,7 +10,7 @@ This Python script scrapes content from a specific webpage about Artificial Inte
 
 ## Requirements
 
-- Python 3.x
+- Python 3.12.3
 - Required libraries:
   - requests
   - selectolax

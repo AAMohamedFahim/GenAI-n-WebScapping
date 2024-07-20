@@ -21,8 +21,3 @@ This Python script scrapes content from a specific webpage about Artificial Inte
   - requests
   - selectolax
   - fpdf
-
-## Installation
-
-1. Clone this repository or download the script.
-2. Install the required libraries:
